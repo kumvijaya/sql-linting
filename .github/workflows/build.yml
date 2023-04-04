@@ -1,32 +1,23 @@
-name: CI Checks
-
+name: sqlfluff with reviewdog
 on:
-  workflow_dispatch
-
+  pull_request:
 jobs:
-  ci-checks:
+  test-check:
+    name: runner / sqlfluff (github-check)
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-    name: CI Checks
-    continue-on-error: false
     steps:
-
-    - name: Checkout
-      uses: actions/checkout@v3
-
-    # - name: SQL Lint
-    #   uses: Bidaya0/sql-lint-in-action@v0.0.1
-    #   with:
-    #     path: '.'
-
-    - name: Install SQL Lint
-      run: |
-        npm i -g sql-lint
-
-    - name: SQL Lint
-      run: |
-        sql-lint .
-
-        
+      - uses: actions/checkout@v2
+      - uses: yu-iskw/action-sqlfluff@v3
+        id: lint-sql
+        with:
+          github_token: ${{ secrets.github_token }}
+          reporter: github-pr-review
+          sqlfluff_version: "2.0.2"
+          sqlfluff_command: "lint" # Or "lint or fix"
+          config: "${{ github.workspace }}/.sqlfluff"
+          paths: '${{ github.workspace }}/models'
+      - name: 'Show outputs (Optional)'
+        shell: bash
+        run: |
+          echo '${{ steps.lint-sql.outputs.sqlfluff-results }}' | jq -r '.'
+          echo '${{ steps.lint-sql.outputs.sqlfluff-results-rdjson }}' | jq -r '.'

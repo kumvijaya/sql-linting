@@ -16,7 +16,17 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
+    # - name: SQL Lint
+    #   uses: Bidaya0/sql-lint-in-action@v0.0.1
+    #   with:
+    #     path: '.'
+
+    - name: Install SQL Lint
+      run: |
+        npm i -g sql-lint
+
     - name: SQL Lint
-      uses: Bidaya0/sql-lint-in-action@v0.0.1
-      with:
-        path: '.'
+      run: |
+        sql-lint .
+
+        
